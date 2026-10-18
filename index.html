@@ -45,21 +45,6 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // Encrypted hash verification for dealer PIN ("455950") using SHA-256 with salt
-        const DEALER_PIN_SALT = "pb_salt_99812";
-        const DEALER_PIN_HASH = "8f3e2b9c7a1d4e6f...verify"; // Handled securely via crypto hash function below
-
-        async function verifyDealerPin(inputPin) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(inputPin + DEALER_PIN_SALT);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            // SHA-256 hash of "455950pb_salt_99812"
-            const targetHash = "a72b83c19e5f4d2a8b3c9e1f0a4b8c2d3e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b"; 
-            return hashHex === targetHash;
-        }
-
         const urlParams = new URLSearchParams(window.location.search);
         let clientRole = urlParams.get('role') || 'admin';
         let isAdminAuthenticated = sessionStorage.getItem('playbacc_admin_auth') === 'true';
@@ -247,20 +232,18 @@
             render();
         }
 
-        async function adminLoginSubmit() {
-            const isValid = await verifyDealerPin(adminPinBuffer.trim());
-            if (isValid) {
+        window.adminLoginSubmit = function() {
+            if (adminPinBuffer.trim() === '455950') {
                 isAdminAuthenticated = true;
                 sessionStorage.setItem('playbacc_admin_auth', 'true');
                 adminPinBuffer = '';
-                showToast('Admin access granted!', 'success');
                 render();
             } else {
                 showToast('Incorrect 6-digit PIN', 'error');
                 adminPinBuffer = '';
                 render();
             }
-        }
+        };
 
         window.adminPinPress = function(digit) {
             if (adminPinBuffer.length < 6) {
@@ -428,13 +411,13 @@
                 const encoded = encodeURIComponent(htmlContent);
                 const a = document.createElement('a');
                 a.href = 'data:text/html;charset=utf-8,' + encoded;
-                a.download = 'playbacc.html';
+                a.download = 'index.html';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                showToast('Downloaded playbacc.html! Host anywhere.', 'success');
+                showToast('Downloaded index.html! Host anywhere.', 'success');
             } catch (e) {
-                showToast("Right-click page -> Save As 'playbacc.html'", 'info');
+                showToast("Right-click page -> Save As 'index.html'", 'info');
             }
         };
 
@@ -670,21 +653,6 @@
             pinInputBuffer = '';
             updatePinDisplay();
         };
-
-        function updatePinDisplay() {
-            for (let i = 0; i < 6; i++) {
-                const box = document.getElementById(`pin-box-${i}`);
-                if (box) {
-                    if (i < pinInputBuffer.length) {
-                        box.textContent = '•';
-                        box.classList.add('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-400');
-                    } else {
-                        box.textContent = '';
-                        box.classList.remove('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-400');
-                    }
-                }
-            }
-        }
 
         document.addEventListener('keydown', function(e) {
             const isPinModalOpen = document.getElementById('pin-modal') && !document.getElementById('pin-modal').classList.contains('hidden');
@@ -1563,7 +1531,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-extrabold text-white">Admin / Dealer Login</h3>
-                            <p class="text-xs text-slate-400 mt-1">Enter Security PIN</p>
+                            <p class="text-xs text-slate-400 mt-1">Enter Security PIN (455950)</p>
                         </div>
                         <div class="flex justify-center gap-2">
                             ${[0,1,2,3,4,5].map(function(i) {
@@ -2154,8 +2122,8 @@
                     <div class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
                         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 space-y-4">
                             <h3 class="text-lg font-extrabold text-white">How to Host Remotely</h3>
-                            <p class="text-xs text-slate-300">Download playbacc.html and drag it to Netlify Drop or GitHub Pages. Anyone can scan the QR code!</p>
-                            <button onclick="downloadSingleHtmlFile()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">Download playbacc.html</button>
+                            <p class="text-xs text-slate-300">Download index.html and drag it to Netlify Drop or GitHub Pages. Anyone can scan the QR code!</p>
+                            <button onclick="downloadSingleHtmlFile()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">Download index.html</button>
                             <button onclick="toggleHostingGuide()" class="w-full py-2 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs">Close</button>
                         </div>
                     </div>
