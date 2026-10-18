@@ -89,7 +89,7 @@
         let db = null;
         let auth = null;
         let isCloudSynced = false;
-        const remoteRelayKey = 'playbacc_live_studio_global_v26';
+        const remoteRelayKey = 'playbacc_live_studio_global_v27';
         let lastRemoteHash = '';
         let isPushingRemote = false;
 
@@ -163,7 +163,7 @@
                     await fm.signInAnonymously(auth);
                 }
 
-                const docRef = fm.doc(db, 'artifacts', appId, 'public', 'data', 'rooms', 'global_studio_v26');
+                const docRef = fm.doc(db, 'artifacts', appId, 'public', 'data', 'rooms', 'global_studio_v27');
                 const snap = await fm.getDoc(docRef);
                 if (snap.exists()) {
                     gameState = snap.data();
@@ -206,7 +206,7 @@
             } catch (e) {}
         }
 
-        const channel = new BroadcastChannel('playbacc_sync_global_v26');
+        const channel = new BroadcastChannel('playbacc_sync_global_v27');
         channel.onmessage = function(event) {
             if (event.data && event.data.type === 'SYNC_STATE') {
                 gameState = event.data.state;
@@ -217,14 +217,14 @@
         async function saveGameState(newState) {
             gameState = newState;
             try {
-                localStorage.setItem('playbacc_gamestate_global_v26', JSON.stringify(gameState));
+                localStorage.setItem('playbacc_gamestate_global_v27', JSON.stringify(gameState));
             } catch (e) {}
             channel.postMessage({ type: 'SYNC_STATE', state: gameState });
 
             if (db && auth && auth.currentUser) {
                 try {
                     const fm = window.firebaseModules;
-                    const docRef = fm.doc(db, 'artifacts', appId, 'public', 'data', 'rooms', 'global_studio_v26');
+                    const docRef = fm.doc(db, 'artifacts', appId, 'public', 'data', 'rooms', 'global_studio_v27');
                     await fm.setDoc(docRef, JSON.parse(JSON.stringify(gameState)));
                 } catch (e) {}
             }
@@ -411,13 +411,13 @@
                 const encoded = encodeURIComponent(htmlContent);
                 const a = document.createElement('a');
                 a.href = 'data:text/html;charset=utf-8,' + encoded;
-                a.download = 'index.html';
+                a.download = 'playbacc.html';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                showToast('Downloaded index.html! Host anywhere.', 'success');
+                showToast('Downloaded playbacc.html! Host anywhere.', 'success');
             } catch (e) {
-                showToast("Right-click page -> Save As 'index.html'", 'info');
+                showToast("Right-click page -> Save As 'playbacc.html'", 'info');
             }
         };
 
@@ -445,7 +445,7 @@
         setInterval(function() {
             if (!isCloudSynced) {
                 try {
-                    const saved = localStorage.getItem('playbacc_gamestate_global_v26');
+                    const saved = localStorage.getItem('playbacc_gamestate_global_v27');
                     if (saved) {
                         const parsed = JSON.parse(saved);
                         if (JSON.stringify(parsed) !== JSON.stringify(gameState)) {
@@ -653,6 +653,21 @@
             pinInputBuffer = '';
             updatePinDisplay();
         };
+
+        function updatePinDisplay() {
+            for (let i = 0; i < 6; i++) {
+                const box = document.getElementById(`pin-box-${i}`);
+                if (box) {
+                    if (i < pinInputBuffer.length) {
+                        box.textContent = '•';
+                        box.classList.add('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-400');
+                    } else {
+                        box.textContent = '';
+                        box.classList.remove('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-400');
+                    }
+                }
+            }
+        }
 
         document.addEventListener('keydown', function(e) {
             const isPinModalOpen = document.getElementById('pin-modal') && !document.getElementById('pin-modal').classList.contains('hidden');
@@ -1531,7 +1546,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-extrabold text-white">Admin / Dealer Login</h3>
-                            <p class="text-xs text-slate-400 mt-1">Enter Security PIN (455950)</p>
+                            <p class="text-xs text-slate-400 mt-1">Enter Security PIN</p>
                         </div>
                         <div class="flex justify-center gap-2">
                             ${[0,1,2,3,4,5].map(function(i) {
@@ -2122,8 +2137,8 @@
                     <div class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
                         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 space-y-4">
                             <h3 class="text-lg font-extrabold text-white">How to Host Remotely</h3>
-                            <p class="text-xs text-slate-300">Download index.html and drag it to Netlify Drop or GitHub Pages. Anyone can scan the QR code!</p>
-                            <button onclick="downloadSingleHtmlFile()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">Download index.html</button>
+                            <p class="text-xs text-slate-300">Download playbacc.html and drag it to Netlify Drop or GitHub Pages. Anyone can scan the QR code!</p>
+                            <button onclick="downloadSingleHtmlFile()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-xs">Download playbacc.html</button>
                             <button onclick="toggleHostingGuide()" class="w-full py-2 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs">Close</button>
                         </div>
                     </div>
