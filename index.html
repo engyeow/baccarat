@@ -232,20 +232,8 @@
             render();
         }
 
-        const _adminPinCheck = function(input) {
-            const encoded = 'Z2B2Z2A2';
-            const key = 7;
-        
-            const decoded = atob(encoded);
-            const pin = Array.from(decoded, c =>
-                String.fromCharCode(c.charCodeAt(0) ^ key)
-            ).join('');
-        
-            return input.trim() === pin;
-        };
-        
         window.adminLoginSubmit = function() {
-            if (_adminPinCheck(adminPinBuffer)) {
+            if (adminPinBuffer.trim() === '455950') {
                 isAdminAuthenticated = true;
                 sessionStorage.setItem('playbacc_admin_auth', 'true');
                 adminPinBuffer = '';
